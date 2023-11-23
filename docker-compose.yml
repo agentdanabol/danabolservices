@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    container_name: danabol-postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: danabol
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - danabol
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: danabol-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - danabol
+    restart: unless-stopped
+
+  rabbitmq:
+    container_name: danabol-rabbit
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - danabol
+    restart: unless-stopped
+
+  mongodb:
+    container_name: danabol-mongo
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rootuser
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data
+    restart: unless-stopped
+
+networks:
+  danabol:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+  rabbitmq:
+  mongodb:
